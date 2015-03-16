@@ -1,0 +1,74 @@
+<body></body>
+<script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/ChromeFixes.js"></script>
+<script>
+  // This is where stuff in our game will happen:
+  var scene = new THREE.Scene();
+
+  // This is what sees the stuff:
+  var aspect_ratio = window.innerWidth / window.innerHeight;
+  var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
+  camera.position.z = 500;
+  scene.add(camera);
+
+  // This will draw what the camera sees onto the screen:
+  var renderer = new THREE.CanvasRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // ==================== AVATAR ==========================
+
+  // =========== BODY =============
+
+  var cone = new THREE.CylinderGeometry(1, 100, 125, 8);
+  var cover = new THREE.MeshNormalMaterial();
+  var avatar = new THREE.Mesh(cone, cover);
+  scene.add(avatar);
+
+  // =========== HEAD =============
+
+  var sphere = new THREE.SphereGeometry(75);
+  var cover = new THREE.MeshNormalMaterial();
+  var head = new THREE.Mesh(sphere, cover);
+  avatar.add(head);
+  head.position.set(0, 110, 0);
+
+  // =========== HANDS ============
+
+  var hand = new THREE.SphereGeometry(40);
+
+  var rightHand = new THREE.Mesh(hand, cover);
+  rightHand.position.set(-140, 0, 0);
+  avatar.add(rightHand);
+
+  var leftHand = new THREE.Mesh(hand, cover);
+  leftHand.position.set(140, 0, 0);
+  avatar.add(leftHand);
+
+  // =========== FEET ==============
+
+  var rightFoot = new THREE.Mesh(hand, cover);
+  rightFoot.position.set(-55, -130, 0);
+  avatar.add(rightFoot);
+
+  var leftFoot = new THREE.Mesh(hand, cover);
+  leftFoot.position.set(55, -130, 0);
+  avatar.add(leftFoot);
+
+  // ======================================================
+
+  // Now, show what the camera sees on the screen:
+
+  var isCartwheeling = false;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (isCartwheeling) {
+      avatar.rotation.z = avatar.rotation.z + 0.05;
+    }
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+</script>
