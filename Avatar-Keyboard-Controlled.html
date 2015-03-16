@@ -75,4 +75,18 @@
 
   animate();
 
+  // ========= Listen for keypress events ============
+  // document.addEventListener('keydown', function(){
+  //   alert(event.keyCode);
+  // });
+  // =================================================
+
+  document.addEventListener('keydown', function(){
+    var code = event.keyCode;
+    if (code == 37) avatar.position.x = avatar.position.x-5; // left
+    if (code == 38) avatar.position.z = avatar.position.z-5; // up
+    if (code == 39) avatar.position.x = avatar.position.x+5; // right
+    if (code == 40) avatar.position.z = avatar.position.z+5; // down
+  });
+
 </script>
