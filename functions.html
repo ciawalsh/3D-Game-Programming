@@ -1,0 +1,46 @@
+<body></body>
+<script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/ChromeFixes.js"></script>
+<script>
+  // This is where stuff in our game will happen:
+  var scene = new THREE.Scene();
+
+  // This is what sees the stuff:
+  var aspect_ratio = window.innerWidth / window.innerHeight;
+  var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
+  camera.position.z = 500;
+  scene.add(camera);
+
+  // This will draw what the camera sees onto the screen:
+  var renderer = new THREE.CanvasRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // ========== FUNCTIONS ===========
+
+  var log = document.createElement('div');
+  log.style.height = 'auto';
+  log.style.width = 'auto';
+  log.style.overflow = 'auto';
+  log.style.border = '1px solid #666';
+  log.style.backgroundColor = '#ccc';
+  log.style.textAlign = 'center';
+  log.style.padding = '8px';
+  log.style.position = 'absolute';
+  log.style.bottom = '10px';
+  log.style.right = '20px';
+  document.body.appendChild(log);
+
+  logMessage('Hello, JavaScript functions!', log);
+  logMessage('My name is Charlie.', log);
+  logMessage('I like popcorn.', log);
+
+  function logMessage(message, log){
+    var holder = document.createElement('div');
+    holder.textContent = message;
+    log.appendChild(holder);
+  }
+
+  // Now, show what the camera sees on the screen:
+  renderer.render(scene, camera);
+</script>
