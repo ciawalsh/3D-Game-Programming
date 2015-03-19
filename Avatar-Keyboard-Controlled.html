@@ -9,21 +9,25 @@
   var aspect_ratio = window.innerWidth / window.innerHeight;
   var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
   camera.position.z = 500;
-  scene.add(camera);
 
   // This will draw what the camera sees onto the screen:
   var renderer = new THREE.CanvasRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
+  // ======== CAMERA MARKER =======
+
+  var marker = new THREE.Object3D();
+  scene.add(marker);
+
   // ==================== AVATAR ==========================
 
   // =========== BODY =============
 
-  var cone = new THREE.CylinderGeometry(1, 100, 125, 8);
+  var body = new THREE.CylinderGeometry(1, 100, 125, 8);
   var cover = new THREE.MeshNormalMaterial();
-  var avatar = new THREE.Mesh(cone, cover);
-  scene.add(avatar);
+  var avatar = new THREE.Mesh(body, cover);
+  marker.add(avatar);
 
   // =========== HEAD =============
 
@@ -57,6 +61,31 @@
 
   // ======================================================
 
+  marker.add(camera);
+
+  // =========== TREES ==============
+
+  makeTreeAt(500, 0);
+  makeTreeAt(-500, 0);
+  makeTreeAt(750, -1000);
+  makeTreeAt(-750, -1000);
+
+  function makeTreeAt(x, z) {
+    var trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(50, 50, 200),
+      new THREE.MeshBasicMaterial({color: 0xA0522D})
+    );
+    var top = new THREE.Mesh(
+      new THREE.SphereGeometry(150),
+      new THREE.MeshBasicMaterial({color: 0x228B22})
+    );
+    top.position.y = 175;
+    trunk.add(top);
+
+    trunk.position.set(x, -75, z);
+    scene.add(trunk);
+  }
+
   // Now, show what the camera sees on the screen:
 
   var isCartwheeling = false;
@@ -83,10 +112,12 @@
 
   document.addEventListener('keydown', function(){
     var code = event.keyCode;
-    if (code == 37) avatar.position.x = avatar.position.x-5; // left
-    if (code == 38) avatar.position.z = avatar.position.z-5; // up
-    if (code == 39) avatar.position.x = avatar.position.x+5; // right
-    if (code == 40) avatar.position.z = avatar.position.z+5; // down
+    if (code == 37) marker.position.x = marker.position.x-5; // left
+    if (code == 38) marker.position.z = marker.position.z-5; // up
+    if (code == 39) marker.position.x = marker.position.x+5; // right
+    if (code == 40) marker.position.z = marker.position.z+5; // down
+    if (code == 67) isCartwheeling = !isCartwheeling; // Cartwheel (Press C)
+    if (code == 70) isFlipping = !isFlipping; // Flip (Press F)
   });
 
 </script>
