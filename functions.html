@@ -18,19 +18,24 @@
 
   // ========== FUNCTIONS ===========
 
-  var log = document.createElement('div');
-  log.style.height = 'auto';
-  log.style.width = 'auto';
-  log.style.overflow = 'auto';
-  log.style.border = '1px solid #666';
-  log.style.backgroundColor = '#ccc';
-  log.style.textAlign = 'center';
-  log.style.padding = '8px';
-  log.style.position = 'absolute';
-  log.style.bottom = '10px';
-  log.style.right = '20px';
-  document.body.appendChild(log);
+  function makeLog(){
+    var holder = document.createElement('div');
+    holder.style.height = 'auto';
+    holder.style.width = 'auto';
+    holder.style.overflow = 'auto';
+    holder.style.border = '1px solid #666';
+    holder.style.backgroundColor = '#ccc';
+    holder.style.textAlign = 'center';
+    holder.style.padding = '8px';
+    holder.style.position = 'absolute';
+    holder.style.bottom = '10px';
+    holder.style.right = '20px';
+    document.body.appendChild(holder);
 
+    return holder;
+  }
+
+  var log = makeLog();
   logMessage('Hello, JavaScript functions!', log);
   logMessage('My name is Charlie.', log);
   logMessage('I like popcorn.', log);
