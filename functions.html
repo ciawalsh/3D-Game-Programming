@@ -36,9 +36,17 @@
   }
 
   var log = makeLog();
-  logMessage('Hello, JavaScript functions!', log);
-  logMessage('My name is Charlie.', log);
-  logMessage('I like popcorn.', log);
+  logMessage(hello('President Obama'), log);
+  logMessage(hello('Mum'), log);
+  logMessage(hello('Charlie'), log);
+
+  function hello(name) {
+    var ret = 'Hello, ' + name + '! You look very pretty today :)';
+    if (!name.match(/again/)) {
+      ret = ret + ' /// ' + hello(name + ' (again)');
+    };
+    return ret;
+  }
 
   function logMessage(message, log){
     var holder = document.createElement('div');
