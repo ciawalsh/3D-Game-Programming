@@ -1,0 +1,346 @@
+<body></body>
+<script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/Tween.js"></script>
+<script src="http://gamingJS.com/Scoreboard.js"></script>
+<script src="http://gamingJS.com/Sounds.js"></script>
+<script src="http://gamingJS.com/ChromeFixes.js"></script>
+<script>
+  // This is where stuff in our game will happen:
+  var scene = new THREE.Scene();
+
+  // This is what sees the stuff:
+  var aspect_ratio = window.innerWidth / window.innerHeight;
+  var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
+  camera.position.z = 500;
+
+  // This will draw what the camera sees onto the screen:
+  var renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // ======== CAMERA MARKER =======
+
+  var marker = new THREE.Object3D();
+  scene.add(marker);
+
+  // ==== FORBIDDEN BOUNDARIES ====
+
+  var notAllowed = [];
+
+  // ========= SCOREBOARD =========
+
+  var scoreboard = new Scoreboard();
+  scoreboard.countdown(45);
+  scoreboard.score();
+  scoreboard.help(
+    'Arrow keys to move. ' +
+    'Spacebar to jump for fruit. ' +
+    'Watch for shaking trees with fruit. ' +
+    'Get near the tree and jump before the fruit is gone!'
+  );
+
+  var gameOver = false;
+  scoreboard.onTimeExpired(function (){
+    scoreboard.message("Game Over!");
+    gameOver = true;
+  });
+
+  // ==================== AVATAR ==========================
+
+  // =========== BODY =============
+
+  var body = new THREE.CylinderGeometry(1, 100, 125, 8);
+  var cover = new THREE.MeshNormalMaterial();
+  var avatar = new THREE.Mesh(body, cover);
+  marker.add(avatar);
+
+  // =========== HEAD =============
+
+  var sphere = new THREE.SphereGeometry(75);
+  var cover = new THREE.MeshNormalMaterial();
+  var head = new THREE.Mesh(sphere, cover);
+  avatar.add(head);
+  head.position.set(0, 110, 0);
+
+  // =========== HANDS ============
+
+  var hand = new THREE.SphereGeometry(40);
+
+  var rightHand = new THREE.Mesh(hand, cover);
+  rightHand.position.set(-140, 0, 0);
+  avatar.add(rightHand);
+
+  var leftHand = new THREE.Mesh(hand, cover);
+  leftHand.position.set(140, 0, 0);
+  avatar.add(leftHand);
+
+  // =========== FEET =============
+
+  var rightFoot = new THREE.Mesh(hand, cover);
+  rightFoot.position.set(-55, -130, 0);
+  avatar.add(rightFoot);
+
+  var leftFoot = new THREE.Mesh(hand, cover);
+  leftFoot.position.set(55, -130, 0);
+  avatar.add(leftFoot);
+
+  // ======================================================
+
+  marker.add(camera);
+
+  // =========== TREES ============
+
+  var trees = [];
+  var treeWithTreasure;
+  trees.push(makeTreeAt(500, 0));
+  trees.push(makeTreeAt(-500, 0));
+  trees.push(makeTreeAt(750, -1000));
+  trees.push(makeTreeAt(-750, -1000));
+
+  function makeTreeAt(x, z) {
+    var trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(50, 50, 200),
+      new THREE.MeshBasicMaterial({color: 0xA0522D})
+    );
+    var top = new THREE.Mesh(
+      new THREE.SphereGeometry(150),
+      new THREE.MeshBasicMaterial({color: 0x228B22})
+    );
+    top.position.y = 175;
+    trunk.add(top);
+    var boundary = new THREE.Mesh(
+      new THREE.CircleGeometry(300),
+      new THREE.MeshNormalMaterial()
+    );
+    boundary.position.y = -100;
+    boundary.rotation.x = -Math.PI/2;
+    trunk.add(boundary);
+
+    notAllowed.push(boundary);
+
+    trunk.position.set(x, -75, z);
+    scene.add(trunk);
+
+    return top;
+  }
+
+  // ======== SHAKEY TREE =========
+
+  function shakeTree() {
+    treeWithTreasure = Math.floor(Math.random() * trees.length);
+
+    new TWEEN
+      .Tween({x: 0})
+      .to({x: 2*Math.PI}, 200)
+      .repeat(20)
+      .onUpdate(function () {
+        trees[treeWithTreasure].position.x = 20 * Math.sin(this.x);
+      })
+      .start();
+
+    setTimeout(shakeTree, 12*1000);
+  };
+
+  shakeTree(); // <----- Call Shake Tree
+
+  // =========== FRUIT ============
+
+  var fruit;
+  function animateFruit() {
+    if (fruit) return;
+
+    fruit = new THREE.Mesh(
+      new THREE.CylinderGeometry(25, 25, 5, 25),
+      new THREE.MeshBasicMaterial({color: 0xD60004})
+    );
+    fruit.rotation.x = Math.PI/2;
+
+    marker.add(fruit);
+
+    new TWEEN.
+      Tween({
+        height: 150,
+        spin: 0
+      }).
+      to({
+        height: 250,
+        spin: 4
+      }, 500).
+      onUpdate(function (){
+        fruit.position.y = this.height;
+        fruit.rotation.z = this.spin;
+      }).
+      onComplete(function (){
+        marker.remove(fruit);
+        fruit = undefined;
+      }).
+      start();
+  };
+
+  // ======= FUNCTIONALITY ========
+
+  var isCartwheeling = false;
+  var isFlipping = false;
+
+  function acrobatics() {
+    if (isCartwheeling) {
+      avatar.rotation.z = avatar.rotation.z + 0.02;
+    }
+    if (isFlipping){
+      avatar.rotation.x = avatar.rotation.x + 0.02;
+    }
+  };
+
+  function walk() {
+    if (!isWalking()) return;
+      var position = Math.sin(clock.getElapsedTime()*5) * 50;
+      rightHand.position.z = position;
+      leftHand.position.z = -position;
+      rightFoot.position.z = -position;
+      leftFoot.position.z = position;
+  };
+
+  function turn() {
+    var direction = 0;
+    if (isMovingForward) direction = Math.PI;
+    if (isMovingBackward) direction = 0;
+    if (isMovingRight) direction = Math.PI/2;
+    if (isMovingLeft) direction = -Math.PI/2;
+
+    spinAvatar(direction);
+  };
+
+  function spinAvatar(direction) {
+    new TWEEN.
+      Tween({y: avatar.rotation.y}).
+      to({y: direction}, 100).
+      onUpdate(function () {
+        avatar.rotation.y = this.y;
+      }).
+      start();
+  };
+
+  function animateJump() {
+    new TWEEN
+      .Tween({jump: 0})
+      .to({jump: Math.PI}, 500)
+      .onUpdate(function () {
+        marker.position.y = 200*Math.sin(this.jump);
+      })
+      .start();
+  };
+
+  function jump() {
+    checkForTresure();
+    animateJump();
+  };
+
+  // Now, show what the camera sees on the screen:
+
+  var clock = new THREE.Clock(true);
+  function animate() {
+    requestAnimationFrame(animate);
+    TWEEN.update();
+    walk();
+    turn();
+    acrobatics();
+    renderer.render(scene, camera);
+  };
+
+  animate(); // <----- Call Animate
+
+  // ========= Listen for keypress events ============
+  // document.addEventListener('keydown', function(){
+  //   alert(event.keyCode);
+  // });
+  // =================================================
+
+  // ============= KEYPRESS EVENTS ============
+
+  var isMovingRight, isMovingLeft, isMovingForward, isMovingBackward;
+  function isWalking() {
+    if (isMovingRight) return true;
+    if (isMovingLeft) return true;
+    if (isMovingForward) return true;
+    if (isMovingBackward) return true;
+    return false;
+  };
+
+  document.addEventListener('keydown', function(event){
+    var code = event.keyCode;
+
+    if (code == 32) jump();
+    if (code == 37) { 
+      marker.position.x = marker.position.x-15; 
+      isMovingLeft = true; 
+    } // left
+    if (code == 38) {
+      marker.position.z = marker.position.z-15; 
+      isMovingBackward = true;
+    } // up
+    if (code == 39) {
+      marker.position.x = marker.position.x+15; 
+      isMovingRight = true;
+    } // right
+    if (code == 40) {
+      marker.position.z = marker.position.z+15; 
+      isMovingForward = true;
+    } // down
+    if (code == 67) isCartwheeling = true; // Cartwheel (Press C)
+    if (code == 70) isFlipping = true; // Flip (Press F)
+    if (detectCollisions()) {
+      if (isMovingLeft) marker.position.x = marker.position.x+15;
+      if (isMovingRight) marker.position.x = marker.position.x-15;
+      if (isMovingForward) marker.position.z = marker.position.z-15;
+      if (isMovingBackward) marker.position.z = marker.position.z+15;
+    }
+  });
+
+  document.addEventListener('keyup', function(event) {
+    var code = event.keyCode;
+
+    if (code == 37) isMovingLeft = false;
+    if (code == 38) isMovingBackward = false;
+    if (code == 39) isMovingRight = false;
+    if (code == 40) isMovingForward = false;
+    if (code == 67) isCartwheeling = false;
+    if (code == 70) isFlipping = false;
+  }); 
+
+  // ======== COLLISION DETECTION =========
+
+  function detectCollisions() {
+    var vector = new THREE.Vector3(0, -1, 0);
+    var ray = new THREE.Ray(marker.position, vector);
+    var intersects = ray.intersectObjects(notAllowed);
+    if (intersects.length > 0) return true;
+    return false;
+  };
+
+  // ======== CHECKING FOR TRESURE ========
+
+  function checkForTresure() {
+    if (treeWithTreasure == undefined) return;
+
+    var treasureTree = trees[treeWithTreasure],
+      p1 = treasureTree.parent.position,
+      p2 = marker.position;
+
+    var distance = Math.sqrt(
+      (p1.x - p2.x)*(p1.x - p2.x) +
+      (p1.z - p2.z)*(p1.z - p2.z)
+    );
+
+    if (distance < 500) {
+      scorePoints();
+    }
+  };
+
+  function scorePoints() {
+    if (scoreboard.getTimeRemaining() === 0) return;
+    scoreboard.addPoints(10);
+    Sounds.bubble.play();
+    animateFruit();
+  };
+
+</script>
