@@ -5,7 +5,7 @@ Continuously being updated. Will update screenshots, and instructions as i work 
 
 #### First Game - Fruit Hunt
 
-![image](https://raw.githubusercontent.com/ciawalsh/3D-Game-Programming/master/Screen%20Shot%20FruitHunt.png)
+![image](https://raw.githubusercontent.com/ciawalsh/3D-Game-Programming/master/Images/Screen%20Shot%20FruitHunt.png)
 
 #### Things I have learnt from this game;
 - Canvas Renderer.
@@ -26,7 +26,7 @@ Instructions are available by pressing the "?" key, once on the game.
 
 #### Side Learning - Casting Shadows
 
-![image](https://raw.githubusercontent.com/ciawalsh/3D-Game-Programming/master/Screen%20Shot%20Donut%20Shadow.png)
+![image](https://raw.githubusercontent.com/ciawalsh/3D-Game-Programming/master/Images/Screen%20Shot%20Donut%20Shadow.png)
 
 #### Things i learnt from making this donut;
 - WebGL Renderer.
