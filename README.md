@@ -23,3 +23,12 @@ cd 3D-Game-Programming
 open FruitHunt.html
 ```
 Instructions are available by pressing the "?" key, once on the game.
+
+#### Side Learning - Casting Shadows
+
+![image](https://raw.githubusercontent.com/ciawalsh/3D-Game-Programming/master/Screen%20Shot%20Donut%20Shadow.png)
+
+#### Things i learnt from making this donut;
+- WebGL Renderer.
+- Creating 'sunlight' to help 3D objects appear more 3D.
+- Creating shadows to really get a sense that there is some source of light.
